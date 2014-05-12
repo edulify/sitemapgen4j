@@ -16,7 +16,7 @@ import org.xml.sax.SAXException;
 abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGenerator<U,THIS>> {
 	/** 50000 URLs per sitemap maximum */
 	public static final int MAX_URLS_PER_SITEMAP = 50000;
-	
+
 	private final String baseUrl;
 	private final File baseDir;
 	private final String fileNamePrefix;
@@ -30,9 +30,9 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 	private final ISitemapUrlRenderer<U> renderer;
 	private int mapCount = 0;
 	private boolean finished = false;
-	
+
 	private final ArrayList<File> outFiles = new ArrayList<File>();
-	
+
 	public SitemapGenerator(AbstractSitemapGeneratorOptions<?> options, ISitemapUrlRenderer<U> renderer) {
 		baseDir = options.baseDir;
 		baseUrl = options.baseUrl;
@@ -47,7 +47,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		this.renderer = renderer;
 		fileNameSuffix = gzip ? ".xml.gz" : ".xml";
 	}
-	
+
 	/** Add one URL of the appropriate type to this sitemap.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or else write out one sitemap immediately.
@@ -55,7 +55,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 	 * @return this
 	 */
 	public THIS addUrl(U url) {
-		if (finished) throw new RuntimeException("Sitemap already printed; you must create a new generator to make more sitemaps"); 
+		if (finished) throw new RuntimeException("Sitemap already printed; you must create a new generator to make more sitemaps");
 		UrlUtils.checkUrl(url.getUrl().toString(), baseUrl);
 		if (urls.size() == maxUrls) {
 			if (!allowMultipleSitemaps) throw new RuntimeException("More than " + maxUrls + " urls, but allowMultipleSitemaps is false.  Enable allowMultipleSitemaps to split the sitemap into multiple files with a sitemap index.");
@@ -67,7 +67,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		urls.add(url);
 		return getThis();
 	}
-	
+
 	/** Add multiple URLs of the appropriate type to this sitemap, one at a time.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or write out one sitemap immediately.
@@ -78,7 +78,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		for (U url : urls) addUrl(url);
 		return getThis();
 	}
-	
+
 	/** Add multiple URLs of the appropriate type to this sitemap, one at a time.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or write out one sitemap immediately.
@@ -89,7 +89,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		for (U url : urls) addUrl(url);
 		return getThis();
 	}
-	
+
 	/** Add multiple URLs of the appropriate type to this sitemap, one at a time.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or write out one sitemap immediately.
@@ -101,7 +101,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		for (String url : urls) addUrl(url);
 		return getThis();
 	}
-	
+
 	/** Add one URL of the appropriate type to this sitemap.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or else write out one sitemap immediately.
@@ -118,7 +118,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		}
 		return addUrl(sitemapUrl);
 	}
-	
+
 	/** Add multiple URLs of the appropriate type to this sitemap, one at a time.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or write out one sitemap immediately.
@@ -129,7 +129,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		for (URL url : urls) addUrl(url);
 		return getThis();
 	}
-	
+
 	/** Add one URL of the appropriate type to this sitemap.
 	 * If we have reached the maximum number of URLs, we'll throw an exception if {@link #allowMultipleSitemaps} is false,
 	 * or write out one sitemap immediately.
@@ -145,14 +145,14 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		}
 		return addUrl(sitemapUrl);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	THIS getThis() {
 		return (THIS)this;
 	}
-	
+
 	/** Write out remaining URLs; this method can only be called once.  This is necessary so we can keep an accurate count for {@link #writeSitemapsWithIndex()}.
-	 * 
+	 *
 	 * @return a list of files we wrote out to disk
 	 */
 	public List<File> write() {
@@ -162,9 +162,9 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		finished = true;
 		return outFiles;
 	}
-	
-	/** After you've called {@link #write()}, call this to generate a sitemap index of all sitemaps you generated.  
-	 * 
+
+	/** After you've called {@link #write()}, call this to generate a sitemap index of all sitemaps you generated.
+	 *
 	 */
 	public void writeSitemapsWithIndex() {
 		if (!finished) throw new RuntimeException("Sitemaps not generated yet; call write() first");
@@ -177,7 +177,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 		}
 		sig.addUrls(fileNamePrefix, fileNameSuffix, mapCount).write();
 	}
-	
+
 	private void writeSiteMap() {
 		if (urls.size() == 0) return;
 		String fileNamePrefix;
@@ -197,7 +197,7 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 			} else {
 				out = new FileWriter(outFile);
 			}
-			
+
 			writeSiteMap(out);
 			if (autoValidate) SitemapValidator.validateWebSitemap(outFile);
 		} catch (IOException e) {
@@ -206,21 +206,23 @@ abstract class SitemapGenerator<U extends ISitemapUrl, THIS extends SitemapGener
 			throw new RuntimeException("Sitemap file failed to validate (bug?)", e);
 		}
 	}
-	
+
 	private void writeSiteMap(OutputStreamWriter out) throws IOException {
-		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); 
-		out.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" ");
-		
-		if (renderer.getXmlNamespaces() != null) {
-			out.write(renderer.getXmlNamespaces());
-			out.write(' ');
+		try {
+			out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			out.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" ");
+
+			if (renderer.getXmlNamespaces() != null) {
+				out.write(renderer.getXmlNamespaces());
+				out.write(' ');
+			}
+			out.write(">\n");
+			for (U url : urls) {
+				renderer.render(url, out, dateFormat);
+			}
+			out.write("</urlset>");
+		} finally {
+			out.close();
 		}
-		out.write(">\n");
-		for (U url : urls) {
-			renderer.render(url, out, dateFormat);
-		}
-		out.write("</urlset>");
-		out.close();
 	}
-	
 }

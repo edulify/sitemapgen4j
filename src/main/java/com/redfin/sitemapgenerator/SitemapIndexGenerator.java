@@ -27,7 +27,7 @@ public class SitemapIndexGenerator {
 	private final boolean autoValidate;
 	/** Maximum 50,000 sitemaps per index allowed */
 	public static final int MAX_SITEMAPS_PER_INDEX = 50000;
-	
+
 	/** Options to configure sitemap index generation */
 	public static class Options {
 		private URL baseUrl;
@@ -39,7 +39,7 @@ public class SitemapIndexGenerator {
 		// TODO GZIP?  Is that legal for a sitemap index?
 
 		/**Configures the generator with a base URL and destination to write the sitemap index file.
-		 * 
+		 *
 		 * @param baseUrl All URLs in the generated sitemap(s) should appear under this base URL
 		 * @param outFile The sitemap index will be written out at this location
 		 */
@@ -48,7 +48,7 @@ public class SitemapIndexGenerator {
 			this.outFile = outFile;
 		}
 		/**Configures the generator with a base URL and destination to write the sitemap index file.
-		 * 
+		 *
 		 * @param baseUrl All URLs in the generated sitemap(s) should appear under this base URL
 		 * @param outFile The sitemap index will be written out at this location
 		 */
@@ -80,7 +80,7 @@ public class SitemapIndexGenerator {
 			this.defaultLastMod = defaultLastMod;
 			return this;
 		}
-		
+
 		/**
 		 * Validate the sitemap index automatically after writing it; this takes
 		 * time
@@ -89,7 +89,7 @@ public class SitemapIndexGenerator {
 			this.autoValidate = autoValidate;
 			return this;
 		}
-		
+
 		/** Constructs a sitemap index generator configured with the options you specified */
 		public SitemapIndexGenerator build() {
 			return new SitemapIndexGenerator(this);
@@ -97,23 +97,23 @@ public class SitemapIndexGenerator {
 	}
 
 	/**Configures the generator with a base URL and destination to write the sitemap index file.
-	 * 
+	 *
 	 * @param baseUrl All URLs in the generated sitemap(s) should appear under this base URL
 	 * @param outFile The sitemap index will be written out at this location
 	 */
 	public SitemapIndexGenerator(URL baseUrl, File outFile) {
 		this(new Options(baseUrl, outFile));
 	}
-	
+
 	/**Configures the generator with a base URL and destination to write the sitemap index file.
-	 * 
+	 *
 	 * @param baseUrl All URLs in the generated sitemap(s) should appear under this base URL
 	 * @param outFile The sitemap index will be written out at this location
 	 */
 	public SitemapIndexGenerator(String baseUrl, File outFile) throws MalformedURLException {
 		this(new Options(baseUrl, outFile));
 	}
-	
+
 	private SitemapIndexGenerator(Options options) {
 		this.baseUrl = options.baseUrl;
 		this.baseUrlString = baseUrl.toString();
@@ -125,9 +125,9 @@ public class SitemapIndexGenerator {
 		this.defaultLastMod = options.defaultLastMod;
 		this.autoValidate = options.autoValidate;
 	}
-	
+
 	/** Adds a single sitemap to the index */
-	public SitemapIndexGenerator addUrl(SitemapIndexUrl url) { 
+	public SitemapIndexGenerator addUrl(SitemapIndexUrl url) {
 		UrlUtils.checkUrl(url.url.toString(), baseUrlString);
 		if (urls.size() >= maxUrls) {
 			throw new RuntimeException("More than " + maxUrls + " urls");
@@ -135,53 +135,53 @@ public class SitemapIndexGenerator {
 		urls.add(url);
 		return this;
 	}
-	
+
 	/** Add multiple sitemaps to the index */
 	public SitemapIndexGenerator addUrls(Iterable<? extends SitemapIndexUrl> urls) {
 		for (SitemapIndexUrl url : urls) addUrl(url);
 		return this;
 	}
-	
+
 	/** Add multiple sitemaps to the index */
 	public SitemapIndexGenerator addUrls(SitemapIndexUrl... urls) {
 		for (SitemapIndexUrl url : urls) addUrl(url);
 		return this;
 	}
-	
+
 	/** Add multiple sitemaps to the index */
 	public SitemapIndexGenerator addUrls(String... urls) throws MalformedURLException {
 		for (String url : urls) addUrl(url);
 		return this;
 	}
-	
+
 	/** Adds a single sitemap to the index */
 	public SitemapIndexGenerator addUrl(String url) throws MalformedURLException {
 		return addUrl(new SitemapIndexUrl(url));
 	}
-	
+
 	/** Add multiple sitemaps to the index */
 	public SitemapIndexGenerator addUrls(URL... urls) {
 		for (URL url : urls) addUrl(url);
 		return this;
 	}
-	
+
 	/** Adds a single sitemap to the index */
 	public SitemapIndexGenerator addUrl(URL url) {
 		return addUrl(new SitemapIndexUrl(url));
 	}
-	
+
 	/** Adds a single sitemap to the index */
 	public SitemapIndexGenerator addUrl(URL url, Date lastMod) {
 		return addUrl(new SitemapIndexUrl(url, lastMod));
 	}
-	
+
 	/** Adds a single sitemap to the index */
 	public SitemapIndexGenerator addUrl(String url, Date lastMod) throws MalformedURLException {
 		return addUrl(new SitemapIndexUrl(url, lastMod));
 	}
-	
+
 	/** Add a numbered list of sitemaps to the index, e.g. "sitemap1.xml" "sitemap2.xml" "sitemap3.xml" etc.
-	 * 
+	 *
 	 * @param prefix the first part of the filename e.g. "sitemap"
 	 * @param suffix the last part of the filename e.g. ".xml" or ".xml.gz"
 	 * @param count the number of sitemaps (1-based)
@@ -197,7 +197,7 @@ public class SitemapIndexGenerator {
 		}
 		return this;
 	}
-	
+
 	/** Writes out the sitemap index */
 	public void write() {
 		if (urls.size() == 0) throw new RuntimeException("No URLs added, sitemap index would be empty; you must add some URLs with addUrls");
@@ -212,28 +212,30 @@ public class SitemapIndexGenerator {
 			throw new RuntimeException("Problem validating sitemap index file (bug?)", e);
 		}
 	}
-	
-	private void writeSiteMap(OutputStreamWriter out) throws IOException {
-		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); 
-		out.write("<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-		for (SitemapIndexUrl url : urls) {
-			out.write("  <sitemap>\n");
-			out.write("    <loc>");
-			out.write(url.url.toString());
-			out.write("</loc>\n");
-			Date lastMod = url.lastMod;
-			
-			if (lastMod == null) lastMod = defaultLastMod;
-			
-			if (lastMod != null) {
-				out.write("    <lastmod>");
-				out.write(dateFormat.format(lastMod));
-				out.write("</lastmod>\n");
-			}
-			out.write("  </sitemap>\n");
-		}
-		out.write("</sitemapindex>");
-		out.close();
-	}
 
+	private void writeSiteMap(OutputStreamWriter out) throws IOException {
+    try {
+  		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+  		out.write("<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+  		for (SitemapIndexUrl url : urls) {
+  			out.write("  <sitemap>\n");
+  			out.write("    <loc>");
+  			out.write(url.url.toString());
+  			out.write("</loc>\n");
+  			Date lastMod = url.lastMod;
+
+  			if (lastMod == null) lastMod = defaultLastMod;
+
+  			if (lastMod != null) {
+  				out.write("    <lastmod>");
+  				out.write(dateFormat.format(lastMod));
+  				out.write("</lastmod>\n");
+  			}
+  			out.write("  </sitemap>\n");
+  		}
+  		out.write("</sitemapindex>");
+    } finally {
+  		out.close();
+    }
+	}
 }
